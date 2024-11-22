@@ -1,3 +1,6 @@
+⚠️ **This package is no longer maintained, you are welcome to take over** ⚠️ 
+
+---
 [![Build](https://img.shields.io/github/workflow/status/yannforget/landsatxplore/Upload%20Python%20Package?label=build&logo=github)](https://github.com/yannforget/landsatxplore/actions/workflows/python-publish.yml)
 [![Tests](https://img.shields.io/github/workflow/status/yannforget/landsatxplore/Run%20tests?label=tests&logo=github)](https://github.com/yannforget/landsatxplore/actions/workflows/run-tests.yml)
 [![codecov](https://codecov.io/gh/yannforget/landsatxplore/branch/master/graph/badge.svg?token=NwVo09Edur)](https://codecov.io/gh/yannforget/landsatxplore)
