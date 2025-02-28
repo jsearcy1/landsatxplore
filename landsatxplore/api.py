@@ -97,8 +97,8 @@ class API(object):
         password : str
             EarthExplorer password.
         """
-        login_url = urljoin(self.url, "login")
-        payload = {"username": username, "password": password}
+        login_url = urljoin(self.url, "login-token")
+        payload = {"username": username, "token": password}
         r = self.session.post(login_url, json.dumps(payload))
         self.raise_api_error(r)
         self.session.headers["X-Auth-Token"] = r.json().get("data")
