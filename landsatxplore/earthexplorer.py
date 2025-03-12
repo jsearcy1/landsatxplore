@@ -2,9 +2,9 @@
 
 import os
 import re
-
 import requests
 from tqdm import tqdm
+
 
 from landsatxplore.api import API
 from landsatxplore.errors import EarthExplorerError
@@ -12,7 +12,7 @@ from landsatxplore.util import guess_dataset, is_display_id
 
 
 EE_URL = "https://earthexplorer.usgs.gov/"
-EE_LOGIN_URL = "https://ers.cr.usgs.gov/login-token/"
+EE_LOGIN_URL = "https://ers.cr.usgs.gov/login/"
 EE_LOGOUT_URL = "https://earthexplorer.usgs.gov/logout"
 EE_DOWNLOAD_URL = (
     "https://earthexplorer.usgs.gov/download/{data_product_id}/{entity_id}/EE/"
@@ -30,29 +30,37 @@ DATA_PRODUCTS = {
     "landsat_ot_c2_l2": ["5e83d14f30ea90a9", "5e83d14fec7cae84", "632210d4770592cf"]
 }
 
+def _get_token(body):
+    """Get `csrf_token`."""
+    csrf = re.findall(r'name="csrf" value="(.+?)"', body)[0]
+    
+    if not csrf:
+        raise EarthExplorerError("EE: login failed (csrf token not found).")
+
+    return csrf
+
 class EarthExplorer(object):
     """Access Earth Explorer portal."""
 
-    def __init__(self, username, password):
+    def __init__(self, username, password,token):
         """Access Earth Explorer portal."""
         self.session = requests.Session()
         self.login(username, password)
-        self.api = API(username, password)
+        self.api = API(username, token)
 
     def logged_in(self):
-        """Check if the log-in has been successful based on session state."""
-        try:
-            # Make a test request to a protected endpoint
-            r = self.session.get(EE_URL)
-            return r.status_code == 200
-        except requests.exceptions.RequestException:
-            return False
+        """Check if the log-in has been successfull based on session cookies."""
+        eros_sso = self.session.cookies.get("EROS_SSO_production_secure")
+        return bool(eros_sso)
 
     def login(self, username, password):
         """Login to Earth Explorer."""
+        rsp = self.session.get(EE_LOGIN_URL)
+        csrf = _get_token(rsp.text)
         payload = {
             "username": username,
-            "token": password,
+            "password": password,
+            "csrf": csrf,
         }
         rsp = self.session.post(EE_LOGIN_URL, data=payload, allow_redirects=True)
 
